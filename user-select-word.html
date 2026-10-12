@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Synonym Practice Portal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --neon-cyan: #00f2ff;
+            --bg-dark: #0a0e12;
+            --card-bg: #12171d;
+            --text-gray: #a0aec0;
+            --success: #00ff88;
+            --error: #ff4b2b;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; touch-action: manipulation; }
+
+        /* Custom Neon Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0a0e12; }
+        ::-webkit-scrollbar-thumb { background: var(--neon-cyan); border-radius: 10px; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-dark);
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* --- SELECTION SCREEN --- */
+        #selection-screen { width: 100%; padding: 20px; display: flex; justify-content: center; }
+        .picker-card { background: var(--card-bg); width: 100%; max-width: 700px; padding: 30px; border-radius: 24px; border: 1px solid #2d3748; text-align: center; }
+        .word-picker-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 12px; max-height: 350px; overflow-y: auto; margin: 20px 0; padding: 15px; background: #0a0e12; border-radius: 15px; border: 1px solid #2d3748; }
+        .pick-item { padding: 10px; background: #1a202c; border: 1px solid #2d3748; border-radius: 8px; cursor: pointer; transition: 0.2s; font-size: 0.85rem; }
+        .pick-item.selected { border-color: var(--neon-cyan); background: rgba(0, 242, 255, 0.1); color: var(--neon-cyan); font-weight: 700; }
+
+        /* --- MAIN UI --- */
+        .container-wrapper { display: flex; gap: 20px; align-items: flex-start; flex-wrap: wrap; justify-content: center; width: 100%; padding: 10px; }
+        .portal-card { background: var(--card-bg); width: 420px; max-width: 100%; padding: 40px 30px; border-radius: 24px; border: 1px solid #2d3748; text-align: center; }
+        
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px; }
+        .word-box { background: #1a202c; padding: 15px; border-radius: 15px; border: 1px solid #2d3748; text-align: left; }
+        .hindi-lbl { display: block; color: var(--neon-cyan); font-weight: 700; margin-bottom: 8px; font-size: 1.1rem; }
+        input { width: 100%; border: 1px solid #2d3748; padding: 10px; border-radius: 8px; color: var(--neon-cyan); background-color: #0a0e12; outline: none; }
+
+        /* --- NAVIGATION SIDEBAR (FIXED SEQUENCE) --- */
+        .nav-card { background: var(--card-bg); width: 340px; padding: 25px; border-radius: 24px; border: 1px solid #2d3748; }
+        .nav-grid { 
+            display: grid; 
+            grid-template-columns: repeat(4, 1fr); /* 4 columns for clean sequence */
+            gap: 12px; 
+            max-height: 250px; 
+            overflow-y: auto; 
+            padding-right: 5px;
+        }
+        .nav-item { width: 100%; aspect-ratio: 1/1; background: #1a202c; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 600; cursor: pointer; border: 1px solid transparent; }
+        .nav-item.active { background: linear-gradient(to bottom right, #00f2ff, #3a7bd5); color: #0a0e12; }
+        .nav-item.completed { border-color: var(--success); color: var(--success); }
+
+        /* --- BUTTONS & TITLES --- */
+        .neon-title { font-size: 2.2rem; font-weight: 800; color: var(--neon-cyan); text-transform: uppercase; margin-bottom: 10px; }
+        .primary-btn { width: 100%; padding: 15px; background: transparent; border: 2px solid var(--neon-cyan); color: var(--neon-cyan); border-radius: 12px; font-weight: 800; cursor: pointer; text-transform: uppercase; margin-top: 10px; transition: 0.3s; }
+        .primary-btn:hover:not(:disabled) { background: var(--neon-cyan); color: #000; box-shadow: 0 0 15px var(--neon-cyan); }
+        .primary-btn:disabled { opacity: 0.3; }
+
+        /* --- REPORT --- */
+        #report-window { display: none; }
+        .report-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 25px 0; }
+        .report-box { background: #0a0e12; padding: 15px; border-radius: 12px; border: 1px solid #2d3748; cursor: pointer; }
+        .report-val { display: block; font-size: 1.5rem; font-weight: 800; color: var(--neon-cyan); }
+        #detail-list-container { background: #0a0e12; border-radius: 12px; padding: 15px; display: none; max-height: 200px; overflow-y: auto; border: 1px solid #2d3748; margin-top: 15px; }
+    
+        /* Mobile app-like responsive refinements; original neon theme retained */
+        html { min-height: 100%; -webkit-text-size-adjust: 100%; }
+        body { width: 100%; min-height: 100dvh; padding-bottom: env(safe-area-inset-bottom); }
+        button, input, a { touch-action: manipulation; }
+        input, button { font: inherit; }
+        @media (max-width: 700px) {
+          body { align-items: stretch; justify-content: flex-start; }
+          .container-wrapper { padding: 10px; gap: 12px; }
+          .portal-card { width: 100%; max-width: 560px; padding: 24px 16px; border-radius: 20px; margin: 0 auto 12px; }
+          .nav-card { width: 100%; max-width: 560px; padding: 18px; margin: 0 auto; }
+          .grid { grid-template-columns: minmax(0, 1fr); gap: 10px; }
+          .word-box { padding: 14px; }
+          .primary-btn { min-height: 46px; padding: 12px; }
+          .neon-title { font-size: clamp(1.45rem, 7vw, 2rem); overflow-wrap: anywhere; }
+          .report-grid { gap: 10px; }
+          #selection-screen { padding: 12px; }
+          .picker-card { padding: 22px 14px; border-radius: 20px; }
+          .word-picker-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); max-height: 45dvh; gap: 8px; padding: 10px; }
+          .pick-item { min-height: 42px; display: flex; align-items: center; justify-content: center; overflow-wrap: anywhere; }
+          #main-test-area { flex-direction: column; align-items: stretch; }
+          .nav-grid { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; }
+        }
+        @media (max-width: 380px) {
+          .portal-card { padding: 20px 12px; }
+          .report-box { padding: 10px; }
+          .primary-btn { font-size: .86rem; }
+        }
+
+    </style>
+    <meta name="theme-color" content="#0a0e12">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="manifest" href="manifest.webmanifest">
+    <link rel="icon" href="app-icon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="app-shell.css">
+</head>
+<body oncontextmenu="return false;">
+
+    <div id="selection-screen">
+        <div class="picker-card">
+            <h1 class="neon-title">Practice Setup</h1>
+            <p style="color: var(--text-gray);">Select words in groups of 4 (e.g., 4, 8, 12...)</p>
+            <div id="sel-counter" style="color: var(--neon-cyan); font-weight: 800; margin-top: 10px;">SELECTED: 0</div>
+            <div class="word-picker-grid" id="picker-grid"></div>
+            <button class="primary-btn" id="start-btn" onclick="startPractice()" disabled>START TEST</button>
+        </div>
+    </div>
+
+    <div class="container-wrapper" id="main-test-area" style="display: none;">
+        <div id="quiz-section" class="portal-card">
+            <div id="set-info" style="text-align: left; color: var(--text-gray); margin-bottom: 15px; font-weight: 600;">SET 1 of X</div>
+            <div class="grid" id="word-grid"></div>
+            <div style="display: flex; gap: 10px;">
+                <button class="primary-btn" id="submit-btn" onclick="verifyBatch()" style="flex: 2;">Submit Answers</button>
+                <button class="primary-btn" id="next-btn" onclick="goToNextBatch()" style="flex: 1; font-size: 0.8rem;">Next</button>
+            </div>
+            <div id="system-alert" style="display:none; color: var(--error); margin-top: 10px; font-weight: 800;">⚠️ COMPLETE ALL 4 WORDS</div>
+        </div>
+
+        <div class="nav-card">
+            <div style="font-weight: 800; margin-bottom: 15px;">⠿ NAVIGATION</div>
+            <div class="nav-grid" id="nav-grid"></div>
+            <button class="primary-btn" onclick="finishTest()" style="background: var(--neon-cyan); color: #000; margin-top: 20px;">FINISH TEST</button>
+        </div>
+
+        <div id="report-window" class="portal-card">
+            <h1 class="neon-title">EXAM REPORT</h1>
+            <div class="report-grid">
+                <div class="report-box" onclick="toggleDetails('attempted')"><span class="report-val" id="rep-attempted">0</span><span>Attempted</span></div>
+                <div class="report-box" onclick="toggleDetails('skipped')"><span class="report-val" id="rep-skipped">0</span><span>Skipped</span></div>
+                <div class="report-box" onclick="toggleDetails('correct')"><span class="report-val" id="rep-correct" style="color: var(--success);">0</span><span>Correct</span></div>
+                <div class="report-box" onclick="toggleDetails('wrong')"><span class="report-val" id="rep-wrong" style="color: var(--error);">0</span><span>Wrong</span></div>
+            </div>
+            <div id="detail-list-container"><div id="detail-items"></div></div>
+            <button class="primary-btn" onclick="location.reload()">RETAKE</button>
+        </div>
+    </div>
+
+    <script src="words-store.js"></script>
+<script>
+        const vocabData = window.WordStore.getWords("userDefine", [
+            {h: "Slow", e: "Slugish"}, {h: "Bad", e: "Awful"}, {h: "Dumb", e: "Foolish"}, {h: "Ugly", e: "Hideous"},
+            {h: "Weak", e: "Fragile"}, {h: "Hot", e: "Warm"}, {h: "Young", e: "Youthful"}, {h: "Tired", e: "Exhausted"},
+            {h: "Fearful", e: "Afraid"}, {h: "Serious", e: "Stern"}, {h: "Active", e: "Energetic"}, {h: "Loud", e: "Noisy"},
+
+            {h: "Helpful", e: "Supportive"}, {h: "Dull", e: "Blunt"}, {h: "Hard", e: "Firm"}, {h: "Wet", e: "Damp"},
+            {h: "Hungry", e: "Straving"}, {h: "Thirsty", e: "Parched"}, {h: "Exicted", e: "thrilled"}, {h: "Lonely", e: "Isolated"},
+            {h: "Friendly", e: "Sociable"}, {h: "Shy", e: "Bashful"}, {h: "Loyal", e: "Faithful"}, {h: "Hot", e: "Warm"},
+            {h: "Happy", e: "Joyful"}, {h: "Fast", e: "Quick"}, {h: "Beautiful", e: "Pretty"}, {h: "Large", e: "Enormous"},
+            {h: "Small", e: "Tiny"}, {h: "Smart", e: "Intelligent"}, {h: "Strong", e: "Powerful"}, {h: "Brave", e: "Courageous"},
+            {h: "Hard", e: "Difficult"}, {h: "Simple", e: "Easy"}, {h: "Angry", e: "Furious"}, {h: "Sad", e: "Unhappy"},
+            {h: "Kind", e: "Generous"}, {h: "Rich", e: "Wealthy"}, {h: "Poor", e: "Needy"}, {h: "Calm", e: "Peaceful"},
+            {h: "Start", e: "Begin"}, {h: "End", e: "Finish"}, {h: "Fix", e: "Repair"}, {h: "Choose", e: "Select"},
+            {h: "Help", e: "Assist"}, {h: "Keep", e: "Retain"}, {h: "Old", e: "Ancient"}, {h: "New", e: "Modern"},
+            {h: "Thin", e: "Slim"}, {h: "Fat", e: "Chubby"}, {h: "Lazy", e: "Idle"}, {h: "Busy", e: "Active"},
+            {h: "Right", e: "Correct"}, {h: "Wrong", e: "Incorrect"}, {h: "Close", e: "Near"}, {h: "Far", e: "Distant"},
+            {h: "Great", e: "Wonderful"}, {h: "Boring", e: "Dull"}, {h: "Quiet", e: "Silent"}, {h: "Loud", e: "Noisy"},
+            {h: "True", e: "Genuine"}, {h: "False", e: "Fake"}, {h: "Cold", e: "Chilly"}, {h: "Hot", e: "Warm"},
+
+        ]);
+
+        let selectedPool = [];
+        let currentBatch = [];
+        let currentSetIndex = 0;
+        let results = { correct: [], wrong: [], attempted: [], skipped: [] };
+
+        function initPicker() {
+            const grid = document.getElementById('picker-grid');
+            vocabData.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'pick-item';
+                div.innerText = item.h;
+                div.onclick = () => {
+                    div.classList.toggle('selected');
+                    const idx = selectedPool.findIndex(x => x.h === item.h);
+                    if(idx > -1) selectedPool.splice(idx, 1);
+                    else selectedPool.push(item);
+                    document.getElementById('sel-counter').innerText = `SELECTED: ${selectedPool.length}`;
+                    document.getElementById('start-btn').disabled = (selectedPool.length < 4 || selectedPool.length % 4 !== 0);
+                };
+                grid.appendChild(div);
+            });
+        }
+
+        function startPractice() {
+            document.getElementById('selection-screen').style.display = 'none';
+            document.getElementById('main-test-area').style.display = 'flex';
+            const navGrid = document.getElementById('nav-grid');
+            const totalBatches = selectedPool.length / 4;
+            for(let i=1; i<=totalBatches; i++) {
+                const div = document.createElement('div');
+                div.className = 'nav-item';
+                div.id = `nav-item-${i}`;
+                div.innerText = i;
+                div.onclick = () => renderBatch(i - 1);
+                navGrid.appendChild(div);
+            }
+            renderBatch(0);
+        }
+
+        function renderBatch(index) {
+            currentSetIndex = index;
+            const grid = document.getElementById('word-grid');
+            grid.innerHTML = '';
+            document.getElementById('set-info').innerText = `SET ${index + 1} of ${selectedPool.length / 4}`;
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            document.getElementById(`nav-item-${index + 1}`).classList.add('active');
+
+            currentBatch = selectedPool.slice(index * 4, (index * 4) + 4);
+            currentBatch.forEach((item, i) => {
+                const div = document.createElement('div');
+                div.className = 'word-box';
+                div.innerHTML = `<span class="hindi-lbl">${item.h}</span><input type="text" id="ans-${i}" placeholder="Synonym..."><div id="stat-${i}" class="status"></div>`;
+                grid.appendChild(div);
+            });
+            document.getElementById('submit-btn').disabled = false;
+        }
+
+        function verifyBatch() {
+            let filled = 0;
+            for(let i=0; i<4; i++) if(document.getElementById(`ans-${i}`).value.trim() !== "") filled++;
+            if(filled < 4) { document.getElementById('system-alert').style.display = 'block'; return; }
+
+            document.getElementById('system-alert').style.display = 'none';
+            currentBatch.forEach((item, i) => {
+                const input = document.getElementById(`ans-${i}`);
+                const status = document.getElementById(`stat-${i}`);
+                const userVal = input.value.trim().toLowerCase();
+                input.disabled = true;
+                if (!results.attempted.some(v => v.h === item.h)) results.attempted.push(item);
+                if(userVal === item.e.toLowerCase()) {
+                    status.innerHTML = "✓ Correct"; status.className = "status correct";
+                    if (!results.correct.some(v => v.h === item.h)) results.correct.push(item);
+                } else {
+                    status.innerHTML = `✗ Ans: ${item.e}`; status.className = "status wrong";
+                    if (!results.wrong.some(v => v.h === item.h)) results.wrong.push(item);
+                }
+            });
+            document.getElementById(`nav-item-${currentSetIndex + 1}`).classList.add('completed');
+            document.getElementById('submit-btn').disabled = true;
+        }
+
+        function goToNextBatch() {
+            if(currentSetIndex + 1 < selectedPool.length / 4) renderBatch(currentSetIndex + 1);
+            else finishTest();
+        }
+
+        function finishTest() {
+            results.skipped = selectedPool.filter(v => !results.attempted.some(a => a.h === v.h));
+            document.getElementById('quiz-section').style.display = 'none';
+            document.querySelector('.nav-card').style.display = 'none';
+            document.getElementById('report-window').style.display = 'block';
+            document.getElementById('rep-attempted').innerText = results.attempted.length;
+            document.getElementById('rep-skipped').innerText = results.skipped.length;
+            document.getElementById('rep-correct').innerText = results.correct.length;
+            document.getElementById('rep-wrong').innerText = results.wrong.length;
+        }
+
+        function toggleDetails(type) {
+            const cont = document.getElementById('detail-list-container');
+            const items = document.getElementById('detail-items');
+            cont.style.display = 'block';
+            items.innerHTML = `<div style="color:var(--neon-cyan); margin-bottom:10px; font-size:0.8rem; text-transform:uppercase;">${type} list</div>`;
+            results[type].forEach(item => {
+                items.innerHTML += `<div style="display:flex; justify-content:space-between; padding:5px; border-bottom:1px solid #1a202c;"><span>${item.h}</span><span style="color:var(--text-gray)">${item.e}</span></div>`;
+            });
+        }
+
+        initPicker();
+    </script>
+    <script src="app-shell.js"></script>
+</body>
+</html>

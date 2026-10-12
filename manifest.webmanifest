@@ -1,0 +1,14 @@
+{
+  "name": "Word Practice",
+  "short_name": "Word Practice",
+  "description": "Practice Hindi meanings, synonyms and your selected vocabulary.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#0a0e12",
+  "theme_color": "#0a0e12",
+  "icons": [
+    {"src":"./app-icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any maskable"}
+  ]
+}
