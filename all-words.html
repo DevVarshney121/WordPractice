@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#080d12"><title>All Words | Word Practice</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="app-shell.css">
+<style>
+:root{--cyan:#00eaf5;--bg:#080d12;--surface:#111922;--line:#263542;--muted:#9aabba}
+*{box-sizing:border-box}html,body{margin:0;width:100%;min-height:100%;background:var(--bg);color:#f5f8fb;font-family:Inter,system-ui,sans-serif}
+.all-page{width:100%;max-width:820px;margin:0 auto;padding:20px 14px 34px}
+.page-heading{margin:5px 2px 18px}.eyebrow{font-size:10px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--cyan)}
+h1{font-size:clamp(24px,5vw,32px);margin:7px 0;letter-spacing:-.6px}.sub{color:var(--muted);font-size:13px;line-height:1.55;margin:0}
+.toolbar{display:flex;gap:9px;margin:16px 0;align-items:center}.search{width:100%;min-width:0;padding:13px 14px;border-radius:13px;border:1px solid var(--line);background:#0d141b;color:#fff;font:inherit;font-size:16px}.summary{font-size:12px;color:var(--muted);white-space:nowrap}.group{border:1px solid var(--line);background:linear-gradient(145deg,#111922,#0d1319);border-radius:17px;overflow:hidden;margin:14px 0}.group-head{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:14px 15px;border-bottom:1px solid var(--line)}.group-head h2{font-size:14px;margin:0;color:var(--cyan)}.count{font-size:11px;color:var(--muted)}
+.word-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px;align-items:start;padding:12px 15px;border-bottom:1px solid #202b35;font-size:13px;line-height:1.5;overflow-wrap:anywhere}.word-row:last-child{border-bottom:0}.word{font-weight:650;color:#f5f8fb}.answer{color:#b6c5d3}.column-labels{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px;padding:8px 15px;background:#0b1117;color:#7f91a3;font-size:10px;text-transform:uppercase;letter-spacing:1px}.empty{padding:22px;text-align:center;color:var(--muted);font-size:13px}.note{font-size:11px;color:#75879a;line-height:1.5;margin:16px 3px}
+@media(max-width:380px){.all-page{padding:16px 10px 30px}.word-row,.column-labels{padding-left:11px;padding-right:11px;gap:8px}.word-row{font-size:12px}.toolbar{align-items:stretch;flex-direction:column}.summary{padding-left:2px}}
+</style></head><body>
+<main class="all-page"><header class="page-heading"><div class="eyebrow">Daily revision</div><h1>All Words</h1><p class="sub">Hindi meanings, synonyms and your own words — in one clean list. Word changes made in Manage Words appear here automatically.</p></header>
+<div class="toolbar"><input id="searchWords" class="search" type="search" placeholder="Search words or answers…" aria-label="Search all words"><span class="summary" id="totalCount">Loading…</span></div>
+<div id="wordGroups" aria-live="polite"></div><p class="note">This list uses the saved word lists in this browser. Open Manage Words to add, edit or remove entries.</p></main>
+<script src="words-store.js"></script><script src="word-defaults.js"></script><script>
+(()=>{const sets=[{key:'hindiMean',title:'Hindi Mean',left:'Hindi meaning',right:'English word'},{key:'synonym',title:'Synonym',left:'Word',right:'Synonym'},{key:'userDefine',title:'User Define',left:'Word',right:'Answer'}];const host=document.getElementById('wordGroups'),search=document.getElementById('searchWords'),total=document.getElementById('totalCount');
+function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function render(){const q=search.value.trim().toLocaleLowerCase();let sum=0;host.innerHTML=sets.map(set=>{const fallback=(window.WordDefaults&&WordDefaults[set.key])||[];const words=WordStore.getWords(set.key,fallback).filter(x=>(String(x.h)+' '+String(x.e)).toLocaleLowerCase().includes(q));sum+=words.length;return `<section class="group"><header class="group-head"><h2>${set.title}</h2><span class="count">${words.length} words</span></header><div class="column-labels"><span>${set.left}</span><span>${set.right}</span></div>${words.length?words.map((x,i)=>`<div class="word-row"><span class="word">${esc(x.h)}</span><span class="answer">${esc(x.e)}</span></div>`).join(''):`<div class="empty">No words found in this list.</div>`}</section>`}).join('');total.textContent=sum+' total';}
+search.addEventListener('input',render);window.addEventListener('storage',e=>{if(!e.key||e.key.startsWith(WordStore.prefix))render()});window.addEventListener('pageshow',render);render();})();
+</script><script src="app-shell.js"></script></body></html>

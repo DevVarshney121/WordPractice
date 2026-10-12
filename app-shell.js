@@ -4,9 +4,10 @@ const pages=[
  {file:'index.html',label:'Panel',icon:'▦',title:'YOUR PANEL'},
  {file:'about.html',label:'Hindi Mean',icon:'अ',title:'HINDI MEAN'},
  {file:'contact.html',label:'Synonym',icon:'≋',title:'SYNONYM PRACTICE'},
- {file:'user-select-word.html',label:'User Define',icon:'✎',title:'USER DEFINE'}
+ {file:'user-select-word.html',label:'User Define',icon:'✎',title:'USER DEFINE'},
+ {file:'all-words.html',label:'All Words',icon:'☷',title:'ALL WORDS'}
 ];
-const current=pages.find(p=>p.file===path)||({file:path,label:path==='manage-words.html'?'Manage Words':path==='extra.html'?'Dhappa':'Practice',icon:path==='manage-words.html'?'⚙':'✦',title:path==='manage-words.html'?'WORD MANAGER':path==='extra.html'?'DHAPPA PRACTICE':'WORD PRACTICE'});
+const current=pages.find(p=>p.file===path)||({file:path,label:path==='manage-words.html'?'Manage Words':path==='extra.html'?'Dhappa':path==='all-words.html'?'All Words':'Practice',icon:path==='manage-words.html'?'⚙':'✦',title:path==='manage-words.html'?'WORD MANAGER':path==='extra.html'?'DHAPPA PRACTICE':path==='all-words.html'?'ALL WORDS':'WORD PRACTICE'});
 const home=path==='index.html';
 const header=document.createElement('header');header.className='app-topbar';
 header.innerHTML=`<a class="app-back" href="index.html" aria-label="${home?'Open panel':'Back to panel'}">${home?'▦':'‹'}</a><div class="app-brand"><strong>WORD PRACTICE</strong><span>${current.title}</span></div><span class="app-status"><span aria-hidden="true">●</span> READY</span>`;

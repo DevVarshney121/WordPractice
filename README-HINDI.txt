@@ -23,3 +23,6 @@ This version keeps changes in the browser that made them. Vercel static hosting 
 
 RESPONSIVE
 The existing dark/neon cyan visual theme is retained. Mobile styles make the practice pages single-column and touch-friendly.
+
+
+NEW UPDATE: all-words.html provides one combined, searchable list for Hindi Mean, Synonym, and User Define. The list reads the same saved word lists as Manage Words, so additions, edits, and deletions are reflected when the list is opened/refreshed. Mobile bottom navigation now has five evenly spaced tabs.
