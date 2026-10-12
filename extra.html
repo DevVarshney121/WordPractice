@@ -2,7 +2,7 @@
 <html lang="hi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Synonym Verification Portal</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
     <style>
@@ -15,8 +15,7 @@
             --error: #ff4b2b;
         }
 
-        /* touch-action prevents double-tap zoom on mobile */
-        * { box-sizing: border-box; margin: 0; padding: 0; touch-action: manipulation; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
 
         ::-webkit-scrollbar { width: 8px; height: 8px; }
         ::-webkit-scrollbar-track { background: #0a0e12; }
@@ -33,7 +32,6 @@
             align-items: center;
             min-height: 100vh;
             overflow-x: hidden;
-            overscroll-behavior: none;
         }
 
         .container-wrapper {
@@ -95,7 +93,9 @@
         }
 
         @media (max-width: 850px) {
-            #nav-toggle-btn.active-visible { display: flex; }
+            #nav-toggle-btn.active-visible {
+                display: flex;
+            }
             .nav-card.mobile-popup {
                 position: fixed;
                 bottom: 85px;
@@ -106,14 +106,46 @@
             }
         }
 
+        /* 0px to 450px Responsive Fix */
         @media (max-width: 450px) {
-            .portal-card { width: 95%; padding: 20px 15px; }
-            .nav-card { width: calc(100% - 30px); padding: 15px; }
-            .grid { grid-template-columns: 1fr; }
-            #report-window { width: 95%; padding: 20px 15px; }
-            .neon-title { font-size: 1.5rem; }
-            .hindi-lbl { font-size: 1rem; }
-            .primary-btn { padding: 12px; font-size: 0.9rem; }
+            .portal-card {
+                width: 95%;
+                padding: 20px 15px;
+            }
+            .nav-card {
+                width: calc(100% - 30px);
+                padding: 15px;
+            }
+            .grid {
+                grid-template-columns: 1fr; /* Single column for small screens */
+            }
+            #report-window {
+                width: 95%;
+                padding: 20px 15px;
+            }
+            .neon-title {
+                font-size: 1.5rem;
+            }
+            .stat-item {
+                padding: 6px 8px;
+                font-size: 0.7rem;
+            }
+            .hindi-lbl {
+                font-size: 1rem;
+            }
+            .primary-btn {
+                padding: 12px;
+                font-size: 0.9rem;
+            }
+            .timer-badge {
+                font-size: 0.75rem;
+                padding: 4px 10px;
+            }
+            .nav-item {
+                width: 40px;
+                height: 40px;
+                font-size: 0.8rem;
+            }
         }
 
         .nav-header {
@@ -223,10 +255,29 @@
             box-shadow: 0 0 10px rgba(0, 242, 255, 0.5);
         }
 
+        .timer-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 75, 43, 0.1);
+            border: 1px solid rgba(255, 75, 43, 0.4);
+            color: var(--error);
+            padding: 6px 15px;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            box-shadow: 0 0 15px rgba(255, 75, 43, 0.15);
+        }
+        
+        .timer-badge svg {
+            width: 16px; height: 16px; fill: var(--error);
+        }
+
         .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px; }
         .word-box { background: #1a202c; padding: 15px; border-radius: 15px; border: 1px solid #2d3748; text-align: left; position: relative; cursor: pointer; user-select: none; }
         .hindi-lbl { display: block; color: var(--neon-cyan); font-weight: 700; margin-bottom: 8px; font-size: 1.1rem; }
-        input { width: 100%;  border: 1px solid #2d3748; padding: 10px; border-radius: 8px; color: rgb(120, 7, 7); outline: none; font-size: 0.9rem; background-color: #36494a;}
+        input { width: 100%; background: #0a0e12; border: 1px solid #2d3748; padding: 10px; border-radius: 8px; color: white; outline: none; font-size: 0.9rem; }
         input:focus { border-color: var(--neon-cyan); }
         .status { font-size: 0.75rem; margin-top: 5px; font-weight: 600; min-height: 15px; }
         .correct { color: var(--success); }
@@ -235,6 +286,11 @@
         .hint-popup { background: var(--neon-cyan); color: var(--bg-dark); padding: 4px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: 800; margin-top: 8px; display: none; box-shadow: 0 0 10px rgba(0, 242, 255, 0.3); text-align: center; }
         .banner { display: none; background: linear-gradient(rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.8)), url('https://images.unsplash.com/photo-1635070041078-e363dbe005cb?auto=format&fit=crop&w=1200&q=80'); background-position: center; background-size: cover; width: 100%; min-height: 350px; justify-content: center; align-items: center; padding: 20px 10px; color: white; text-align: center; border-radius: 24px; margin-bottom: 20px; }
         .content-box { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(10px); border: 1px solid rgba(0, 242, 255, 0.2); border-radius: 20px; width: 100%; max-width: 800px; padding: 25px 10px; }
+        .banner h1 { font-size: clamp(1.2rem, 5vw, 2.5rem); color: #00f2ff; margin-bottom: 20px; text-transform: uppercase; font-weight: bold; }
+        .stats-grid { display: flex; flex-direction: row; gap: 8px; justify-content: center; margin-bottom: 20px; flex-wrap: nowrap; }
+        .stat-item { background: rgba(0, 242, 255, 0.08); border: 1px solid rgba(0, 242, 255, 0.3); padding: 8px 12px; border-radius: 8px; color: #b3fdff; font-size: clamp(0.6rem, 2.2vw, 0.9rem); flex: 0 1 auto; min-width: fit-content; display: flex; align-items: center; justify-content: center; gap: 5px; white-space: nowrap; }
+        .details-text { font-size: clamp(0.75rem, 2.5vw, 1rem); margin-bottom: 15px; color: #cfd8dc; }
+        .rules { font-size: clamp(0.65rem, 2.2vw, 0.85rem); background: rgba(0, 242, 255, 0.1); color: #00f2ff; padding: 8px 15px; border-radius: 50px; font-weight: bold; border: 1px dashed #00f2ff; display: inline-block; }
         
         #report-window { display: none; background: var(--card-bg); width: 450px; max-width: 95%; padding: 35px; border-radius: 24px; border: 1px solid var(--neon-cyan); box-shadow: 0 0 30px rgba(0, 242, 255, 0.2); text-align: center; }
         .report-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 25px 0; }
@@ -247,35 +303,6 @@
         .detail-item { padding: 10px; border-bottom: 1px solid #1a202c; font-size: 0.9rem; display: flex; justify-content: space-between; align-items: center; }
         .detail-item:last-child { border: none; }
         .detail-title { color: var(--neon-cyan); font-weight: 700; margin-bottom: 10px; font-size: 0.8rem; text-transform: uppercase; text-align: center; border-bottom: 1px solid #2d3748; padding-bottom: 5px; }
-    
-        /* Mobile app-like responsive refinements; original neon theme retained */
-        html { min-height: 100%; -webkit-text-size-adjust: 100%; }
-        body { width: 100%; min-height: 100dvh; padding-bottom: env(safe-area-inset-bottom); }
-        button, input, a { touch-action: manipulation; }
-        input, button { font: inherit; }
-        @media (max-width: 700px) {
-          body { align-items: stretch; justify-content: flex-start; }
-          .container-wrapper { padding: 10px; gap: 12px; }
-          .portal-card { width: 100%; max-width: 560px; padding: 24px 16px; border-radius: 20px; margin: 0 auto 12px; }
-          .nav-card { width: 100%; max-width: 560px; padding: 18px; margin: 0 auto; }
-          .grid { grid-template-columns: minmax(0, 1fr); gap: 10px; }
-          .word-box { padding: 14px; }
-          .primary-btn { min-height: 46px; padding: 12px; }
-          .neon-title { font-size: clamp(1.45rem, 7vw, 2rem); overflow-wrap: anywhere; }
-          .report-grid { gap: 10px; }
-          #selection-screen { padding: 12px; }
-          .picker-card { padding: 22px 14px; border-radius: 20px; }
-          .word-picker-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); max-height: 45dvh; gap: 8px; padding: 10px; }
-          .pick-item { min-height: 42px; display: flex; align-items: center; justify-content: center; overflow-wrap: anywhere; }
-          #main-test-area { flex-direction: column; align-items: stretch; }
-          .nav-grid { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; }
-        }
-        @media (max-width: 380px) {
-          .portal-card { padding: 20px 12px; }
-          .report-box { padding: 10px; }
-          .primary-btn { font-size: .86rem; }
-        }
-
     </style>
     <meta name="theme-color" content="#0a0e12">
     <meta name="mobile-web-app-capable" content="yes">
@@ -285,7 +312,7 @@
     <link rel="icon" href="app-icon.svg" type="image/svg+xml">
     <link rel="stylesheet" href="app-shell.css">
 </head>
-<body oncontextmenu="return false;">
+<body>
 
     <button id="nav-toggle-btn" onclick="toggleNav()">
         <svg viewBox="0 0 24 24">
@@ -295,34 +322,40 @@
 
     <section class="banner" id="top-banner-main">
         <div class="content-box">
-            <h1>Vocab Mastery Portal</h1>
+            <h1>Synonym Mastery Exam Portal</h1>
             <div class="stats-grid">
-                <div class="stat-item"><span>56 Words</span></div>
+                <div class="stat-item"><span>40 Words</span></div>
                 <div class="stat-item"><span id="lifeline-display">5 Lifelines</span></div>
                 <div class="stat-item"><span>100 Marks</span></div>
             </div>
-            <div class="rules" style="margin-top:10px;">⚡ 3 Words Krna Compulsory Hai!</div>
+            <p class="details-text">Har sawaal <b>2.5 Number</b> ka hoga</p>
+            <div class="rules">⚡ 3 Questions Krna Compulsory Hai!</div>
         </div>
     </section>
 
     <div class="container-wrapper">
         <div id="start-window" class="portal-card">
-            <h1 class="neon-title">VOCAB EXAM<br>PORTAL</h1>
-            <p class="subtitle">Hindi to English Translation</p>
+            <h1 class="neon-title">SYNONYM EXAM<br>PORTAL</h1>
+            <p class="subtitle">Word to Synonym Verification</p>
             <hr>
             <ul>
-                <li>Total Questions: <span class="highlight-cyan">56 Words</span></li>
+                <li>Total Questions: <span class="highlight-cyan">40 Words</span></li>
                 <li>Total Duration: <span class="highlight-cyan">05 Minutes</span></li>
+                <li>Slide Duration: <span class="highlight-cyan">30 Seconds</span></li>
                 <li>Lifelines: <span class="highlight-cyan">5 Hints</span></li>
-                <li>Zoom: <span class="highlight-cyan">Strictly Fixed</span></li>
             </ul>
             <button class="primary-btn" onclick="startTest()">Start Examination</button>
         </div>
 
         <div id="quiz-section" class="portal-card">
             <div class="quiz-header-ux">
+                <div class="timer-badge">
+                    <svg viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg>
+                    SLIDE TIME: <span id="slide-timer">30</span>s
+                </div>
+                
                 <div class="progress-text">
-                    <span id="q-set-title">Word Set 1 of 20</span>
+                    <span id="q-set-title">Question Set 1 of 20</span>
                     <span id="progress-percent">5%</span>
                 </div>
                 <div class="progress-bar-container">
@@ -377,11 +410,11 @@
             </div>
             <div class="nav-stats">
                 <div class="stat-row">
-                    <span>Answered Sets</span>
+                    <span>Answered</span>
                     <span id="nav-answered" style="color: var(--neon-cyan);">0</span>
                 </div>
                 <div class="stat-row">
-                    <span>Remaining</span>
+                    <span>Unanswered</span>
                     <span id="nav-unanswered" style="color: #4a5568;">20</span>
                 </div>
             </div>
@@ -390,79 +423,59 @@
         </div>
     </div>
 
-    <script src="words-store.js"></script>
-<script>
-        // --- ZOOM PREVENTION LOGIC ---
-        document.addEventListener('keydown', function (e) {
-            if (e.ctrlKey && (e.key === '+' || e.key === '-' || e.key === '0' || e.key === '=')) {
-                e.preventDefault();
-            }
-        });
-        document.addEventListener('wheel', function (e) {
-            if (e.ctrlKey) e.preventDefault();
-        }, { passive: false });
-        document.addEventListener('gesturestart', function (e) { e.preventDefault(); });
-
-        // --- VOCAB DATA ---
-        const vocabData = window.WordStore.getWords("hindiMean", [
-              {h: "इच्छा", e: "Desire"}, 
-{h: "इरादा", e: "Intension"},
-{h: "इच्छा", e: "Desire"}, 
-{h: "इरादा", e: "Intension"},
-
-{h: "झगड़ा", e: "Quarrel"}, 
-{h: "जिज्ञासु", e: "Curious"}, 
-{h: "कभी-कभी", e: "sometime"}, 
-{h: "हमेशा", e: "forever"},
-{h: "यदि ऐसा हो", e: "Incase"}, 
-{h: "बासी", e: "Stale"},
-
-{h: "अपमान करना", e: "Offend"}, 
-{h: "परवरिश", e: "Upbringing"},
-{h: "योग्य", e: "Worthy"}, 
-{h: "खुरंड", e: "scab"}, 
-{h: "कभी-कभी", e: "sometime"}, 
-{h: "हमेशा", e: "forever"},
-{h: "सड़ा हुआ", e: "Rotten"}, 
-{h: "सहानुभूति", e: "Sympathy"}, 
-
-{h: "रिले / आगे बढ़ाना", e: "Rely"}, 
-{h: "चक्कर आना", e: "Dizzy"},
-{h: "ढोंग करना", e: "Pretend"}, 
-{h: "विश्वसनीय", e: "Reliable"}, 
-{h: "सुनिश्चित करना", e: "Ensure"}, 
-{h: "इसलिए", e: "Therefore"},
-
-
-
-
-
-
-            {h: "आत्मविश्वासी", e: "Assertive"}, {h: "लचीला / संघर्षशील", e: "Resilient"}, 
-            {h: "धारणा", e: "Perception"}, {h: "अस्पष्ट", e: "Ambiguous"},
-            {h: "दृढ़ विश्वास", e: "Conviction"}, {h: "अनिच्छुक", e: "Reluctant"}, 
-            {h: "प्रभावशाली", e: "Dominant"}, {h: "रणनीति", e: "Strategy"},
-            {h: "दृष्टिकोण", e: "Perspective"}, {h: "ईमानदारी", e: "Integrity"}, 
-            {h: "प्रभाव", e: "Influence"}, {h: "झिझकना", e: "Hesitate"},
-            {h: "प्रेरणा", e: "Motivation"}, {h: "तरीका", e: "Approach"}, 
-            {h: "टकराव", e: "Conflict"}, {h: "निर्णय", e: "Decision"},
-            {h: "विश्लेषण करना", e: "Analyze"}, {h: "ध्यान केंद्रित करना", e: "Focus"}, 
-            {h: "प्राथमिकता", e: "Priority"}, {h: "आत्मविश्वास", e: "Confidence"},
-            {h: "जिम्मेदारी", e: "Responsibility"}, {h: "अवसर", e: "Opportunity"}, 
-            {h: "चुनौती", e: "Challenge"}, {h: "विकास", e: "Growth"},
-            {h: "स्थिरता", e: "Stability"}, {h: "क्षमता (Potential)", e: "Potential"}, 
-            {h: "नेतृत्व", e: "Leadership"}, {h: "प्रभाव (Influence)", e: "Influence"},
-            {h: "क्रियान्वयन", e: "Execution"}, {h: "स्पष्टता", e: "Clarity"}, 
-            {h: "उत्पादकता", e: "Productivity"}, {h: "निरंतरता", e: "Consistency"}
-
-        ]);
+    <script>
+        const vocabData = [
+    {h: "आत्मविश्वासी", e: "Assertive"}, 
+    {h: "लचीला / संघर्षशील", e: "Resilient"}, 
+    {h: "धारणा", e: "Perception"}, 
+    {h: "अस्पष्ट", e: "Ambiguous"},
+    {h: "दृढ़ विश्वास", e: "Conviction"}, 
+    {h: "अनिच्छुक", e: "Reluctant"}, 
+    {h: "प्रभावशाली", e: "Dominant"}, 
+    {h: "रणनीति", e: "Strategy"},
+    {h: "दृष्टिकोण", e: "Perspective"}, 
+    {h: "ईमानदारी", e: "Integrity"}, 
+    {h: "प्रभाव", e: "Influence"}, 
+    {h: "झिझकना", e: "Hesitate"},
+    {h: "क्षमता", e: "Capability"}, 
+    {h: "अनुकूल होना", e: "Adapt"}, 
+    {h: "मूल्यांकन करना", e: "Evaluate"}, 
+    {h: "परिणाम", e: "Consequence"},
+    {h: "सही ठहराना", e: "Justify"}, 
+    {h: "प्रतिबद्धता", e: "Commitment"}, 
+    {h: "जागरूकता", e: "Awareness"}, 
+    {h: "अनुशासन", e: "Discipline"},
+    {h: "प्रेरणा", e: "Motivation"}, 
+    {h: "तरीका", e: "Approach"}, 
+    {h: "टकराव", e: "Conflict"}, 
+    {h: "निर्णय", e: "Decision"},
+    {h: "विश्लेषण करना", e: "Analyze"}, 
+    {h: "ध्यान केंद्रित करना", e: "Focus"}, 
+    {h: "प्राथमिकता", e: "Priority"}, 
+    {h: "आत्मविश्वास", e: "Confidence"},
+    {h: "जिम्मेदारी", e: "Responsibility"}, 
+    {h: "अवसर", e: "Opportunity"}, 
+    {h: "चुनौती", e: "Challenge"}, 
+    {h: "विकास", e: "Growth"},
+    {h: "स्थिरता", e: "Stability"}, 
+    {h: "क्षमता (Potential)", e: "Potential"}, 
+    {h: "नेतृत्व", e: "Leadership"}, 
+    {h: "प्रभाव (Influence)", e: "Influence"},
+    {h: "क्रियान्वयन", e: "Execution"}, 
+    {h: "स्पष्टता", e: "Clarity"}, 
+    {h: "उत्पादकता", e: "Productivity"}, 
+    {h: "निरंतरता", e: "Consistency"}
+];
 
         let totalTime = 300; 
-        let totalTimerId;
+        let slideTime = 30;
+        let totalTimerId, slideTimerId;
         let lifelines = 5;
         let setCounter = 0;
         let completedSets = 0;
         let activeType = null;
+        let manualNav = false;
+
         let results = { correct: [], wrong: [], attempted: [], skipped: [] };
 
         function toggleNav() {
@@ -475,11 +488,12 @@
 
         function startTest() {
             document.getElementById('start-window').style.display = 'none';
+            document.getElementById('top-banner-main').style.display = 'flex';
             document.getElementById('quiz-section').style.display = 'block';
             const nav = document.getElementById('nav-sidebar');
             const toggle = document.getElementById('nav-toggle-btn');
-            if (window.innerWidth > 850) { nav.style.display = 'block'; } 
-            else { toggle.classList.add('active-visible'); }
+            if (window.innerWidth > 850) { nav.style.display = 'block'; toggle.classList.remove('active-visible'); } 
+            else { nav.style.display = 'none'; toggle.classList.add('active-visible'); }
             initNavigation();
             generateBatch(1);
             startTotalTimer();
@@ -493,7 +507,11 @@
                 div.className = 'nav-item';
                 div.id = `nav-item-${i}`;
                 div.innerText = i;
-                div.onclick = function() { generateBatch(i); if (window.innerWidth <= 850) toggleNav(); };
+                div.onclick = function() { 
+                    manualNav = true;
+                    generateBatch(i); 
+                    if (window.innerWidth <= 850) toggleNav(); 
+                };
                 grid.appendChild(div);
             }
         }
@@ -504,7 +522,21 @@
                 let min = Math.floor(totalTime / 60);
                 let sec = totalTime % 60;
                 document.getElementById('timer').innerText = `${min.toString().padStart(2, '0')}:${sec.toString().padStart(2, '0')}`;
-                if (totalTime <= 0) finishTest();
+                if (totalTime <= 0) { finishTest(); }
+            }, 1000);
+        }
+
+        function startSlideTimer() {
+            clearInterval(slideTimerId);
+            slideTime = 30;
+            document.getElementById('slide-timer').innerText = slideTime;
+            slideTimerId = setInterval(() => {
+                slideTime--;
+                document.getElementById('slide-timer').innerText = slideTime;
+                if (slideTime <= 0) { 
+                    manualNav = false;
+                    generateBatch();
+                }
             }, 1000);
         }
 
@@ -521,9 +553,19 @@
             document.getElementById('system-alert').style.display = 'none';
             document.getElementById('submit-btn').disabled = false;
             
-            setCounter = forcedSetNum || (setCounter >= 20 ? 1 : setCounter + 1);
+            if (forcedSetNum) {
+                setCounter = forcedSetNum;
+            } else if (!manualNav) {
+                setCounter++;
+                if(setCounter > 20) setCounter = 1;
+            } else {
+                setCounter++;
+                if(setCounter > 20) setCounter = 1;
+            }
             
-            document.getElementById('q-set-title').innerText = `Word Set ${setCounter} of 20`;
+            manualNav = false;
+
+            document.getElementById('q-set-title').innerText = `Question Set ${setCounter} of 20`;
             const percentage = (setCounter / 20) * 100;
             document.getElementById('progress-percent').innerText = `${Math.round(percentage)}%`;
             document.getElementById('progress-bar').style.width = `${percentage}%`;
@@ -532,29 +574,30 @@
             const activeNav = document.getElementById(`nav-item-${setCounter}`);
             if(activeNav) activeNav.classList.add('active');
 
-            // Pick 4 random words for this set
             currentBatch = [...vocabData].sort(() => 0.5 - Math.random()).slice(0, 4);
             currentBatch.forEach((item, i) => {
                 const div = document.createElement('div');
                 div.className = 'word-box';
                 div.ondblclick = () => triggerHint(i, item.e);
-                div.innerHTML = `<span class="hindi-lbl">${item.h}</span><input type="text" id="ans-${i}" placeholder="Word.."><div id="hint-popup-${i}" class="hint-popup"></div><div id="status-${i}" class="status"></div>`;
+                div.innerHTML = `<span class="hindi-lbl">${item.h}</span><input type="text" id="ans-${i}" placeholder="Synonym..."><div id="hint-popup-${i}" class="hint-popup"></div><div id="status-${i}" class="status"></div>`;
                 grid.appendChild(div);
             });
+            startSlideTimer();
         }
 
         function checkAttempt(type) {
             let count = 0;
             currentBatch.forEach((_, i) => { if (document.getElementById(`ans-${i}`).value.trim() !== "") count++; });
-            if (count < 3) { triggerAlert("ATTEMPT ANY THREE WORDS"); } 
-            else {
-                verify();
-                const navItem = document.getElementById(`nav-item-${setCounter}`);
-                if(!navItem.classList.contains('completed')){
-                    navItem.classList.add('completed');
-                    completedSets++;
-                    document.getElementById('nav-answered').innerText = completedSets;
-                    document.getElementById('nav-unanswered').innerText = 20 - completedSets;
+            if (count < 3) { triggerAlert("ATTEMPT ANY THREE WORDS"); } else {
+                if (type === 'submit') {
+                    verify();
+                    const navItem = document.getElementById(`nav-item-${setCounter}`);
+                    if(!navItem.classList.contains('completed')){
+                        navItem.classList.add('completed');
+                        completedSets++;
+                        document.getElementById('nav-answered').innerText = completedSets;
+                        document.getElementById('nav-unanswered').innerText = 20 - completedSets;
+                    }
                 }
             }
         }
@@ -580,14 +623,16 @@
                 const status = document.getElementById(`status-${i}`);
                 const userVal = input.value.trim().toLowerCase();
                 input.disabled = true;
-                if (userVal === "") return;
+                if (userVal === "") { return; }
                 if (!results.attempted.some(v => v.h === item.h)) results.attempted.push(item);
                 if (userVal === item.e.toLowerCase()) {
-                    status.innerHTML = "✓ Correct"; status.className = "status correct";
+                    status.innerHTML = "✓ Correct";
+                    status.className = "status correct";
                     input.style.borderColor = "var(--success)";
                     if (!results.correct.some(v => v.h === item.h)) results.correct.push(item);
                 } else {
-                    status.innerHTML = `✗ Ans: ${item.e}`; status.className = "status wrong";
+                    status.innerHTML = `✗ Ans: ${item.e}`;
+                    status.className = "status wrong";
                     input.style.borderColor = "var(--error)";
                     if (!results.wrong.some(v => v.h === item.h)) results.wrong.push(item);
                 }
@@ -597,6 +642,7 @@
 
         function finishTest() {
             clearInterval(totalTimerId);
+            clearInterval(slideTimerId);
             const attemptedNames = results.attempted.map(v => v.h);
             results.skipped = vocabData.filter(v => !attemptedNames.includes(v.h));
             document.getElementById('quiz-section').style.display = 'none';
@@ -613,8 +659,11 @@
             const container = document.getElementById('detail-list-container');
             const itemsList = document.getElementById('detail-items');
             const title = document.getElementById('detail-title');
-            if (activeType === type) { container.style.display = 'none'; activeType = null; } 
-            else {
+
+            if (activeType === type) {
+                container.style.display = 'none';
+                activeType = null;
+            } else {
                 container.style.display = 'block';
                 itemsList.innerHTML = '';
                 title.innerText = `${type} words list`;
