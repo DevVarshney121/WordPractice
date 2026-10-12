@@ -1,0 +1,73 @@
+/* Word Practice app shell: shared mobile-first UI; original dark/cyan theme retained */
+:root{--app-cyan:#00f2ff;--app-bg:#0a0e12;--app-surface:#12171d;--app-border:#2d3748;--app-muted:#a0aec0}
+*{box-sizing:border-box}
+html{min-height:100%;-webkit-text-size-adjust:100%;scroll-padding-top:76px;scroll-padding-bottom:100px}
+body{display:block!important;width:100%;padding-bottom:calc(86px + env(safe-area-inset-bottom))!important;overscroll-behavior-y:contain;-webkit-tap-highlight-color:transparent}
+button,a,input,select,textarea{touch-action:manipulation}
+button,a{ -webkit-tap-highlight-color:transparent }
+.app-topbar{width:100%;min-height:58px;display:flex;align-items:center;gap:12px;padding:10px max(14px,env(safe-area-inset-left));position:relative;z-index:50;background:rgba(10,14,18,.94);border-bottom:1px solid rgba(45,55,72,.75);backdrop-filter:blur(14px)}
+.app-back{display:inline-flex;align-items:center;justify-content:center;flex:0 0 40px;width:40px;height:40px;border:1px solid var(--app-border);border-radius:14px;color:var(--app-cyan);text-decoration:none;font-size:21px;background:#12171d}
+.app-brand{min-width:0;display:flex;flex-direction:column;gap:2px}.app-brand strong{font-size:14px;letter-spacing:1.2px;color:var(--app-cyan);line-height:1.2}.app-brand span{font-size:11px;color:var(--app-muted)}
+.app-status{margin-left:auto;font-size:10px;color:var(--app-muted);white-space:nowrap}
+.app-bottom-nav{position:fixed;z-index:9998;bottom:0;left:0;right:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;padding:8px 8px calc(8px + env(safe-area-inset-bottom));background:rgba(13,18,24,.96);border-top:1px solid #2d3748;backdrop-filter:blur(18px);box-shadow:0 -8px 30px #0005}
+.app-bottom-nav a{display:flex;min-width:0;min-height:54px;flex-direction:column;align-items:center;justify-content:center;gap:4px;border-radius:14px;color:#9aa8ba;text-decoration:none;font:600 10px/1.1 Inter,system-ui,sans-serif;letter-spacing:.1px}
+.app-bottom-nav a .app-icon{font-size:19px;line-height:1}.app-bottom-nav a.active{color:var(--app-cyan);background:rgba(0,242,255,.1);box-shadow:inset 0 0 0 1px rgba(0,242,255,.18)}
+.app-bottom-nav a:active,.app-back:active{transform:scale(.97)}
+/* Keep content clear of fixed navigation and prevent sideways overflow */
+body>*{max-width:100%}img,video,canvas,iframe{max-width:100%}input,select,textarea{max-width:100%;font-size:16px!important}
+@media(max-width:600px){
+ .app-topbar{position:sticky;top:0;padding-top:calc(8px + env(safe-area-inset-top));min-height:62px}
+ .app-brand strong{font-size:13px}.app-status{font-size:9px}
+ .app-bottom-nav a{min-height:52px;font-size:10px}
+ .app-bottom-nav a .app-icon{font-size:20px}
+ .app-bottom-nav a span:last-child{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+ .stream-selection-section{padding-top:8px!important}
+ .stream-btn-container{scroll-snap-type:x proximity;scrollbar-width:none}
+ .stream-btn{scroll-snap-align:start;min-height:44px}
+ .test-content-section{padding-top:8px!important}
+ .test-card{width:100%;max-width:100%;}
+ .container-wrapper{padding:8px!important;gap:10px!important}
+ .portal-card,.nav-card,.picker-card{width:100%!important;max-width:100%!important;margin:0 0 10px!important}
+ .portal-card{padding:22px 15px!important;border-radius:20px!important}
+ .nav-card{padding:16px!important;border-radius:18px!important}
+ .grid,.report-grid{grid-template-columns:minmax(0,1fr)!important}
+ .primary-btn,.open-test-btn{min-height:48px;display:flex;align-items:center;justify-content:center}
+ .word-picker-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;max-height:42dvh!important}
+ .nav-grid{grid-template-columns:repeat(5,minmax(0,1fr))!important;gap:7px!important}
+ #nav-toggle-btn{bottom:calc(88px + env(safe-area-inset-bottom))!important;left:14px!important}
+ .nav-card.mobile-popup{bottom:calc(150px + env(safe-area-inset-bottom))!important;left:10px!important;width:calc(100% - 20px)!important;max-height:60dvh;overflow:auto}
+ #report-window{width:100%!important;max-width:100%!important;margin:0!important;padding:18px 12px!important}
+ .app-bottom-nav~*{max-width:100%}
+}
+@media(min-width:601px){body{padding-bottom:92px!important}.app-bottom-nav{left:50%;right:auto;transform:translateX(-50%);width:min(560px,calc(100% - 32px));border:1px solid #2d3748;border-bottom:0;border-radius:18px 18px 0 0}.app-topbar{padding-left:max(22px,calc((100vw - 1100px)/2));padding-right:max(22px,calc((100vw - 1100px)/2))}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;transition-duration:.01ms!important}}
+
+/* Responsive hardening: prevent fixed-width child elements from widening the viewport */
+html,body{width:100%;max-width:100%;overflow-x:clip}
+*,*::before,*::after{box-sizing:border-box}
+body>*{min-width:0}
+@media(max-width:600px){
+  body{font-size:15px}
+  .app-topbar{width:100%;gap:10px}
+  .app-brand{overflow:hidden}
+  .app-brand strong,.app-brand span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .app-status{flex-shrink:0}
+}
+
+/* FINAL FIX: restore normal document scrolling on every page. The original practice
+   pages use a centered flex body; that can trap/clip long content on mobile. */
+html{height:auto!important;min-height:100%!important;overflow-x:hidden!important;overflow-y:auto!important;scroll-behavior:smooth}
+body{display:flex!important;flex-direction:column!important;justify-content:flex-start!important;align-items:stretch!important;height:auto!important;min-height:100dvh!important;max-height:none!important;overflow-x:hidden!important;overflow-y:visible!important;overscroll-behavior-y:auto!important;position:relative!important;padding-bottom:calc(104px + env(safe-area-inset-bottom))!important}
+body>*{flex-shrink:0;min-width:0}
+.app-topbar{flex:0 0 auto!important}
+.app-bottom-nav{flex:0 0 auto!important;isolation:isolate}
+/* The navigation must never cover the last line/button of a long page. */
+@media(max-width:600px){
+ body{padding-bottom:calc(100px + env(safe-area-inset-bottom))!important;touch-action:pan-y}
+ .app-bottom-nav{min-height:70px;z-index:10000;padding-bottom:calc(8px + env(safe-area-inset-bottom))!important}
+ main,.container-wrapper,.test-content-section,.stream-selection-section,.wrap,.panel-page{min-width:0;max-width:100%;}
+ .container-wrapper{align-items:stretch!important;justify-content:flex-start!important}
+ .app-topbar{position:sticky!important;top:0;z-index:10001}
+}
+/* Word manager page spacing with the shared fixed bottom navigation */
+body:has(.wrap){padding-bottom:calc(112px + env(safe-area-inset-bottom))!important}

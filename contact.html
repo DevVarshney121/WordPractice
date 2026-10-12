@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Synonym Verification Portal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --neon-cyan: #00f2ff;
+            --bg-dark: #0a0e12;
+            --card-bg: #12171d;
+            --text-gray: #a0aec0;
+            --success: #00ff88;
+            --error: #ff4b2b;
+        }
+
+        /* touch-action prevents double-tap zoom on mobile */
+        * { box-sizing: border-box; margin: 0; padding: 0; touch-action: manipulation; }
+
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #0a0e12; }
+        ::-webkit-scrollbar-thumb { background: var(--neon-cyan); border-radius: 10px; box-shadow: 0 0 10px var(--neon-cyan); }
+        ::-webkit-scrollbar-thumb:hover { background: #33f5ff; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-dark);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow-x: hidden;
+            /* Prevents pull-to-refresh zoom/bounce */
+            overscroll-behavior: none;
+        }
+
+        .container-wrapper {
+            display: flex;
+            gap: 20px;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            justify-content: center;
+            width: 100%;
+            padding: 10px;
+        }
+
+        .portal-card {
+            background: var(--card-bg);
+            width: 420px;
+            max-width: 100%;
+            padding: 40px 30px;
+            border-radius: 24px;
+            border: 1px solid #2d3748;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            text-align: center;
+            position: relative;
+            margin: 10px 0;
+        }
+
+        .nav-card {
+            background: var(--card-bg);
+            width: 340px;
+            max-width: 100%;
+            padding: 25px;
+            border-radius: 24px;
+            border: 1px solid #2d3748;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            margin: 10px 0;
+            display: none;
+        }
+
+        #nav-toggle-btn {
+            display: none;
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            width: 55px;
+            height: 55px;
+            background: var(--card-bg);
+            border: 2px solid var(--neon-cyan);
+            border-radius: 50%;
+            cursor: pointer;
+            z-index: 1100;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 0 15px rgba(0, 242, 255, 0.4);
+        }
+
+        #nav-toggle-btn svg {
+            fill: white;
+            width: 26px;
+            height: 26px;
+        }
+
+        @media (max-width: 850px) {
+            #nav-toggle-btn.active-visible {
+                display: flex;
+            }
+            .nav-card.mobile-popup {
+                position: fixed;
+                bottom: 85px;
+                left: 20px;
+                margin: 0;
+                z-index: 1000;
+                width: calc(100% - 40px);
+            }
+        }
+
+        @media (max-width: 450px) {
+            .portal-card {
+                width: 95%;
+                padding: 20px 15px;
+            }
+            .nav-card {
+                width: calc(100% - 30px);
+                padding: 15px;
+            }
+            .grid {
+                grid-template-columns: 1fr;
+            }
+            #report-window {
+                width: 95%;
+                padding: 20px 15px;
+            }
+            .neon-title {
+                font-size: 1.5rem;
+            }
+            .hindi-lbl {
+                font-size: 1rem;
+            }
+            .primary-btn {
+                padding: 12px;
+                font-size: 0.9rem;
+            }
+        }
+
+        .nav-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: white;
+        }
+
+        .time-box-red {
+            background: rgba(255, 75, 43, 0.15);
+            border: 1px solid var(--error);
+            color: var(--error);
+            padding: 4px 10px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 800;
+        }
+
+        .nav-scroll-container {
+            width: 100%;
+            overflow-x: auto;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+        }
+
+        .nav-grid {
+            display: grid;
+            grid-template-rows: repeat(2, 45px);
+            grid-auto-flow: column;
+            gap: 10px;
+        }
+
+        .nav-item {
+            width: 45px;
+            height: 45px;
+            background: #1a202c;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            color: white;
+            border: 1px solid transparent;
+            cursor: pointer;
+        }
+
+        .nav-item.active { background: linear-gradient(to bottom right, #00f2ff, #3a7bd5); color: #0a0e12; }
+        .nav-item.completed { border-color: var(--success); color: var(--success); }
+
+        .nav-stats {
+            background: #0a0e12;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-row { display: flex; justify-content: space-between; font-size: 0.9rem; margin-bottom: 5px; }
+
+        .neon-title { font-size: 2.2rem; font-weight: 800; color: var(--neon-cyan); text-shadow: 0 0 15px rgba(0, 242, 255, 0.6); line-height: 1.1; margin-bottom: 10px; text-transform: uppercase; }
+        .subtitle { color: white; font-size: 1.1rem; margin-bottom: 20px; opacity: 0.9; }
+        hr { border: 0; border-top: 1px solid #2d3748; margin: 20px 0; }
+        ul { text-align: left; list-style: none; margin: 25px 0; }
+        li { margin-bottom: 15px; color: white; font-size: 0.95rem; display: flex; align-items: center; }
+        li::before { content: "•"; color: white; font-weight: bold; display: inline-block; width: 1.5em; }
+        .highlight-cyan { color: var(--neon-cyan); font-weight: 700; }
+        .primary-btn { width: 100%; padding: 15px; background: transparent; border: 2px solid var(--neon-cyan); color: var(--neon-cyan); border-radius: 12px; font-weight: 800; font-size: 1rem; cursor: pointer; text-transform: uppercase; transition: all 0.3s ease; margin-top: 10px; }
+        .primary-btn:hover { background: var(--neon-cyan); color: var(--bg-dark); box-shadow: 0 0 20px rgba(0, 242, 255, 0.4); }
+        .nav-submit { background: var(--neon-cyan); color: #0a0e12; border: none; }
+        .nav-reset { border-color: #ff4b2b; color: #ff4b2b; }
+        
+        #quiz-section { display: none; }
+        
+        .quiz-header-ux {
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #2d3748;
+        }
+
+        .progress-text {
+            font-size: 0.85rem;
+            color: var(--text-gray);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .progress-bar-container {
+            width: 100%;
+            height: 6px;
+            background: #1a202c;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #00f2ff, #3a7bd5);
+            width: 0%;
+            transition: width 0.3s ease;
+            box-shadow: 0 0 10px rgba(0, 242, 255, 0.5);
+        }
+
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px; }
+        .word-box { background: #1a202c; padding: 15px; border-radius: 15px; border: 1px solid #2d3748; text-align: left; position: relative; cursor: pointer; user-select: none; }
+        .hindi-lbl { display: block; color: var(--neon-cyan); font-weight: 700; margin-bottom: 8px; font-size: 1.1rem; }
+        input { width: 100%;  border: 1px solid #2d3748; padding: 10px; border-radius: 8px; color: rgb(98, 0, 0); outline: none; font-size: 0.9rem; background-color: #36494a;}
+        input:focus { border-color: var(--neon-cyan); }
+        .status { font-size: 0.75rem; margin-top: 5px; font-weight: 600; min-height: 15px; }
+        .correct { color: var(--success); }
+        .wrong { color: var(--error); }
+        #system-alert { display: none; color: var(--error); font-weight: 800; font-size: 0.95rem; margin-top: 20px; text-transform: uppercase; text-align: center; }
+        .hint-popup { background: var(--neon-cyan); color: var(--bg-dark); padding: 4px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: 800; margin-top: 8px; display: none; box-shadow: 0 0 10px rgba(0, 242, 255, 0.3); text-align: center; }
+        .banner { display: none; background: linear-gradient(rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.8)), url('https://images.unsplash.com/photo-1635070041078-e363dbe005cb?auto=format&fit=crop&w=1200&q=80'); background-position: center; background-size: cover; width: 100%; min-height: 350px; justify-content: center; align-items: center; padding: 20px 10px; color: white; text-align: center; border-radius: 24px; margin-bottom: 20px; }
+        .content-box { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(10px); border: 1px solid rgba(0, 242, 255, 0.2); border-radius: 20px; width: 100%; max-width: 800px; padding: 25px 10px; }
+        .banner h1 { font-size: clamp(1.2rem, 5vw, 2.5rem); color: #00f2ff; margin-bottom: 20px; text-transform: uppercase; font-weight: bold; }
+        .stats-grid { display: flex; flex-direction: row; gap: 8px; justify-content: center; margin-bottom: 20px; flex-wrap: nowrap; }
+        .stat-item { background: rgba(0, 242, 255, 0.08); border: 1px solid rgba(0, 242, 255, 0.3); padding: 8px 12px; border-radius: 8px; color: #b3fdff; font-size: clamp(0.6rem, 2.2vw, 0.9rem); flex: 0 1 auto; min-width: fit-content; display: flex; align-items: center; justify-content: center; gap: 5px; white-space: nowrap; }
+        .details-text { font-size: clamp(0.75rem, 2.5vw, 1rem); margin-bottom: 15px; color: #cfd8dc; }
+        .rules { font-size: clamp(0.65rem, 2.2vw, 0.85rem); background: rgba(0, 242, 255, 0.1); color: #00f2ff; padding: 8px 15px; border-radius: 50px; font-weight: bold; border: 1px dashed #00f2ff; display: inline-block; }
+        
+        #report-window { display: none; background: var(--card-bg); width: 450px; max-width: 95%; padding: 35px; border-radius: 24px; border: 1px solid var(--neon-cyan); box-shadow: 0 0 30px rgba(0, 242, 255, 0.2); text-align: center; }
+        .report-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 25px 0; }
+        .report-box { background: #0a0e12; padding: 15px; border-radius: 12px; border: 1px solid #2d3748; cursor: pointer; transition: transform 0.2s; }
+        .report-box:hover { transform: scale(1.05); border-color: var(--neon-cyan); }
+        .report-val { display: block; font-size: 1.5rem; font-weight: 800; color: var(--neon-cyan); }
+        .report-lbl { font-size: 0.75rem; color: var(--text-gray); text-transform: uppercase; letter-spacing: 1px; }
+        
+        #detail-list-container { margin-top: 20px; text-align: left; background: #0a0e12; border-radius: 12px; padding: 15px; display: none; max-height: 250px; overflow-y: auto; border: 1px solid #2d3748; }
+        .detail-item { padding: 10px; border-bottom: 1px solid #1a202c; font-size: 0.9rem; display: flex; justify-content: space-between; align-items: center; }
+        .detail-item:last-child { border: none; }
+        .detail-title { color: var(--neon-cyan); font-weight: 700; margin-bottom: 10px; font-size: 0.8rem; text-transform: uppercase; text-align: center; border-bottom: 1px solid #2d3748; padding-bottom: 5px; }
+    
+        /* Mobile app-like responsive refinements; original neon theme retained */
+        html { min-height: 100%; -webkit-text-size-adjust: 100%; }
+        body { width: 100%; min-height: 100dvh; padding-bottom: env(safe-area-inset-bottom); }
+        button, input, a { touch-action: manipulation; }
+        input, button { font: inherit; }
+        @media (max-width: 700px) {
+          body { align-items: stretch; justify-content: flex-start; }
+          .container-wrapper { padding: 10px; gap: 12px; }
+          .portal-card { width: 100%; max-width: 560px; padding: 24px 16px; border-radius: 20px; margin: 0 auto 12px; }
+          .nav-card { width: 100%; max-width: 560px; padding: 18px; margin: 0 auto; }
+          .grid { grid-template-columns: minmax(0, 1fr); gap: 10px; }
+          .word-box { padding: 14px; }
+          .primary-btn { min-height: 46px; padding: 12px; }
+          .neon-title { font-size: clamp(1.45rem, 7vw, 2rem); overflow-wrap: anywhere; }
+          .report-grid { gap: 10px; }
+          #selection-screen { padding: 12px; }
+          .picker-card { padding: 22px 14px; border-radius: 20px; }
+          .word-picker-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); max-height: 45dvh; gap: 8px; padding: 10px; }
+          .pick-item { min-height: 42px; display: flex; align-items: center; justify-content: center; overflow-wrap: anywhere; }
+          #main-test-area { flex-direction: column; align-items: stretch; }
+          .nav-grid { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; }
+        }
+        @media (max-width: 380px) {
+          .portal-card { padding: 20px 12px; }
+          .report-box { padding: 10px; }
+          .primary-btn { font-size: .86rem; }
+        }
+
+    </style>
+    <meta name="theme-color" content="#0a0e12">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="manifest" href="manifest.webmanifest">
+    <link rel="icon" href="app-icon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="app-shell.css">
+</head>
+<body oncontextmenu="return false;">
+
+    <button id="nav-toggle-btn" onclick="toggleNav()">
+        <svg viewBox="0 0 24 24">
+            <path d="M4 8h4V4H4v4zm6 12h4v-4h-4v4zm-6 0h4v-4H4v4zm0-6h4v-4H4v4zm6 0h4v-4h-4v4zm6-10v4h4V4h-4zm-6 4h4V4h-4v4zm6 6h4v-4h-4v4zm0 6h4v-4h-4v4z"/>
+        </svg>
+    </button>
+
+    <section class="banner" id="top-banner-main">
+        <div class="content-box">
+            <h1>Synonym Mastery Exam Portal</h1>
+            <div class="stats-grid">
+                <div class="stat-item"><span>64 Words</span></div>
+                <div class="stat-item"><span id="lifeline-display">5 Lifelines</span></div>
+                <div class="stat-item"><span>100 Marks</span></div>
+            </div>
+            <p class="details-text">Har sawaal <b>2.5 Number</b> ka hoga</p>
+            <div class="rules">⚡ 3 Questions Krna Compulsory Hai!</div>
+        </div>
+    </section>
+
+    <div class="container-wrapper">
+        <div id="start-window" class="portal-card">
+            <h1 class="neon-title">SYNONYM EXAM<br>PORTAL</h1>
+            <p class="subtitle">Word to Synonym Verification</p>
+            <hr>
+            <ul>
+                <li>Total Questions: <span class="highlight-cyan">40 Words</span></li>
+                <li>Total Duration: <span class="highlight-cyan">05 Minutes</span></li>
+                <li>Lifelines: <span class="highlight-cyan">5 Hints</span></li>
+            </ul>
+            <button class="primary-btn" onclick="startTest()">Start Examination</button>
+        </div>
+
+        <div id="quiz-section" class="portal-card">
+            <div class="quiz-header-ux">
+                <div class="progress-text">
+                    <span id="q-set-title">Question Set 1 of 20</span>
+                    <span id="progress-percent">5%</span>
+                </div>
+                <div class="progress-bar-container">
+                    <div class="progress-bar-fill" id="progress-bar"></div>
+                </div>
+            </div>
+
+            <div class="grid" id="word-grid"></div>
+            
+            <div style="display: flex; gap: 10px;">
+                <button class="primary-btn" id="submit-btn" onclick="checkAttempt('submit')" style="flex: 2;">Submit Answers</button>
+                <button class="primary-btn" id="next-btn" onclick="generateBatch()" style="flex: 1; font-size: 0.8rem; border-color: #4a5568; color: #a0aec0;">Next</button>
+            </div>
+            <div id="system-alert">⚠️ ATTEMPT ANY THREE WORDS</div>
+        </div>
+
+        <div id="report-window" class="portal-card">
+            <h1 class="neon-title">EXAM REPORT</h1>
+            <p style="font-size: 0.8rem; color: var(--text-gray); margin-bottom: 10px;">Tap boxes to show/hide lists</p>
+            <div class="report-grid">
+                <div class="report-box" onclick="toggleDetails('attempted')">
+                    <span class="report-val" id="rep-attempted">0</span>
+                    <span class="report-lbl">Attempted</span>
+                </div>
+                <div class="report-box" onclick="toggleDetails('skipped')">
+                    <span class="report-val" id="rep-skipped">0</span>
+                    <span class="report-lbl">Skipped</span>
+                </div>
+                <div class="report-box" onclick="toggleDetails('correct')">
+                    <span class="report-val" id="rep-correct" style="color: var(--success);">0</span>
+                    <span class="report-lbl">Correct</span>
+                </div>
+                <div class="report-box" onclick="toggleDetails('wrong')">
+                    <span class="report-val" id="rep-wrong" style="color: var(--error);">0</span>
+                    <span class="report-lbl">Wrong</span>
+                </div>
+            </div>
+            <div id="detail-list-container">
+                <div class="detail-title" id="detail-title">Detail List</div>
+                <div id="detail-items"></div>
+            </div>
+            <button class="primary-btn" onclick="location.reload()">RETAKE TEST</button>
+        </div>
+
+        <div id="nav-sidebar" class="nav-card">
+            <div class="nav-header">
+                <div style="display: flex; align-items: center; gap: 8px;"><span>⠿</span> Navigation</div>
+                <div id="timer" class="time-box-red">05:00</div>
+            </div>
+            <div class="nav-scroll-container">
+                <div class="nav-grid" id="nav-grid"></div>
+            </div>
+            <div class="nav-stats">
+                <div class="stat-row">
+                    <span>Answered</span>
+                    <span id="nav-answered" style="color: var(--neon-cyan);">0</span>
+                </div>
+                <div class="stat-row">
+                    <span>Unanswered</span>
+                    <span id="nav-unanswered" style="color: #4a5568;">20</span>
+                </div>
+            </div>
+            <button class="primary-btn nav-submit" onclick="finishTest()">SUBMIT FINAL TEST</button>
+            <button class="primary-btn nav-reset" onclick="location.reload()">RESET TEST</button>
+        </div>
+    </div>
+
+    <script src="words-store.js"></script>
+<script>
+        // Zoom Prevention Logic
+        document.addEventListener('keydown', function (e) {
+            if (e.ctrlKey && (e.key === '+' || e.key === '-' || e.key === '0' || e.key === '=')) {
+                e.preventDefault();
+            }
+        });
+        document.addEventListener('wheel', function (e) {
+            if (e.ctrlKey) e.preventDefault();
+        }, { passive: false });
+        document.addEventListener('gesturestart', function (e) {
+            e.preventDefault();
+        });
+
+        const vocabData = window.WordStore.getWords("synonym", [
+         {h: "Slow", e: "Slugish"}, {h: "Bad", e: "Awful"}, {h: "Dumb", e: "Foolish"}, {h: "Ugly", e: "Hideous"},
+            {h: "Weak", e: "Fragile"}, {h: "Hot", e: "Warm"}, {h: "Young", e: "Youthful"}, {h: "Tired", e: "Exhausted"},
+            {h: "Fearful", e: "Afraid"}, {h: "Serious", e: "Stern"}, {h: "Active", e: "Energetic"}, {h: "Loud", e: "Noisy"},
+
+            {h: "Helpful", e: "Supportive"}, {h: "Dull", e: "Blunt"}, {h: "Hard", e: "Firm"}, {h: "Wet", e: "Damp"},
+            {h: "Hungry", e: "Straving"}, {h: "Thirsty", e: "Parched"}, {h: "Exicted", e: "thrilled"}, {h: "Lonely", e: "Isolated"},
+            {h: "Friendly", e: "Sociable"}, {h: "Shy", e: "Bashful"}, {h: "Loyal", e: "Faithful"}, {h: "Hot", e: "Warm"},
+            {h: "Happy", e: "Joyful"}, {h: "Fast", e: "Quick"}, {h: "Beautiful", e: "Pretty"}, {h: "Large", e: "Enormous"},
+            {h: "Small", e: "Tiny"}, {h: "Smart", e: "Intelligent"}, {h: "Strong", e: "Powerful"}, {h: "Brave", e: "Courageous"},
+            {h: "Hard", e: "Difficult"}, {h: "Simple", e: "Easy"}, {h: "Angry", e: "Furious"}, {h: "Sad", e: "Unhappy"},
+            {h: "Kind", e: "Generous"}, {h: "Rich", e: "Wealthy"}, {h: "Poor", e: "Needy"}, {h: "Calm", e: "Peaceful"},
+            {h: "Start", e: "Begin"}, {h: "End", e: "Finish"}, {h: "Fix", e: "Repair"}, {h: "Choose", e: "Select"},
+            {h: "Help", e: "Assist"}, {h: "Keep", e: "Retain"}, {h: "Old", e: "Ancient"}, {h: "New", e: "Modern"},
+            {h: "Thin", e: "Slim"}, {h: "Fat", e: "Chubby"}, {h: "Lazy", e: "Idle"}, {h: "Busy", e: "Active"},
+            {h: "Right", e: "Correct"}, {h: "Wrong", e: "Incorrect"}, {h: "Close", e: "Near"}, {h: "Far", e: "Distant"},
+            {h: "Great", e: "Wonderful"}, {h: "Boring", e: "Dull"}, {h: "Quiet", e: "Silent"}, {h: "Loud", e: "Noisy"},
+            {h: "True", e: "Genuine"}, {h: "False", e: "Fake"}, {h: "Cold", e: "Chilly"}, {h: "Hot", e: "Warm"},
+
+       
+            
+        ]);
+
+        let totalTime = 300; 
+        let totalTimerId;
+        let lifelines = 5;
+        let setCounter = 0;
+        let completedSets = 0;
+        let activeType = null;
+        let results = { correct: [], wrong: [], attempted: [], skipped: [] };
+
+        function toggleNav() {
+            const nav = document.getElementById('nav-sidebar');
+            if (window.innerWidth <= 850) {
+                nav.classList.add('mobile-popup');
+                nav.style.display = (nav.style.display === 'block') ? 'none' : 'block';
+            }
+        }
+
+        function startTest() {
+            document.getElementById('start-window').style.display = 'none';
+            document.getElementById('top-banner-main').style.display = 'flex';
+            document.getElementById('quiz-section').style.display = 'block';
+            const nav = document.getElementById('nav-sidebar');
+            const toggle = document.getElementById('nav-toggle-btn');
+            if (window.innerWidth > 850) { nav.style.display = 'block'; toggle.classList.remove('active-visible'); } 
+            else { nav.style.display = 'none'; toggle.classList.add('active-visible'); }
+            initNavigation();
+            generateBatch(1);
+            startTotalTimer();
+        }
+
+        function initNavigation() {
+            const grid = document.getElementById('nav-grid');
+            grid.innerHTML = '';
+            for(let i=1; i<=20; i++) {
+                const div = document.createElement('div');
+                div.className = 'nav-item';
+                div.id = `nav-item-${i}`;
+                div.innerText = i;
+                div.onclick = function() { 
+                    generateBatch(i); 
+                    if (window.innerWidth <= 850) toggleNav(); 
+                };
+                grid.appendChild(div);
+            }
+        }
+
+        function startTotalTimer() {
+            totalTimerId = setInterval(() => {
+                totalTime--;
+                let min = Math.floor(totalTime / 60);
+                let sec = totalTime % 60;
+                document.getElementById('timer').innerText = `${min.toString().padStart(2, '0')}:${sec.toString().padStart(2, '0')}`;
+                if (totalTime <= 0) { finishTest(); }
+            }, 1000);
+        }
+
+        function triggerAlert(msg) {
+            const alertBox = document.getElementById('system-alert');
+            alertBox.innerText = `⚠️ ${msg}`;
+            alertBox.style.display = 'block';
+            setTimeout(() => { alertBox.style.display = 'none'; }, 5000);
+        }
+
+        function generateBatch(forcedSetNum) {
+            const grid = document.getElementById('word-grid');
+            grid.innerHTML = '';
+            document.getElementById('system-alert').style.display = 'none';
+            document.getElementById('submit-btn').disabled = false;
+            
+            if (forcedSetNum) {
+                setCounter = forcedSetNum;
+            } else {
+                setCounter++;
+                if(setCounter > 20) setCounter = 1;
+            }
+            
+            document.getElementById('q-set-title').innerText = `Question Set ${setCounter} of 20`;
+            const percentage = (setCounter / 20) * 100;
+            document.getElementById('progress-percent').innerText = `${Math.round(percentage)}%`;
+            document.getElementById('progress-bar').style.width = `${percentage}%`;
+
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            const activeNav = document.getElementById(`nav-item-${setCounter}`);
+            if(activeNav) activeNav.classList.add('active');
+
+            currentBatch = [...vocabData].sort(() => 0.5 - Math.random()).slice(0, 4);
+            currentBatch.forEach((item, i) => {
+                const div = document.createElement('div');
+                div.className = 'word-box';
+                div.ondblclick = () => triggerHint(i, item.e);
+                div.innerHTML = `<span class="hindi-lbl">${item.h}</span><input type="text" id="ans-${i}" placeholder="Synonym..."><div id="hint-popup-${i}" class="hint-popup"></div><div id="status-${i}" class="status"></div>`;
+                grid.appendChild(div);
+            });
+        }
+
+        function checkAttempt(type) {
+            let count = 0;
+            currentBatch.forEach((_, i) => { if (document.getElementById(`ans-${i}`).value.trim() !== "") count++; });
+            if (count < 3) { triggerAlert("ATTEMPT ANY THREE WORDS"); } else {
+                if (type === 'submit') {
+                    verify();
+                    const navItem = document.getElementById(`nav-item-${setCounter}`);
+                    if(!navItem.classList.contains('completed')){
+                        navItem.classList.add('completed');
+                        completedSets++;
+                        document.getElementById('nav-answered').innerText = completedSets;
+                        document.getElementById('nav-unanswered').innerText = 20 - completedSets;
+                    }
+                }
+            }
+        }
+
+        function triggerHint(index, correctWord) {
+            if (lifelines <= 0) { triggerAlert("NO LIFELINES LEFT!"); return; }
+            if (document.getElementById(`ans-${index}`).disabled) return;
+            const popup = document.getElementById(`hint-popup-${index}`);
+            if (popup.style.display === 'block') return;
+            lifelines--;
+            document.getElementById('lifeline-display').innerText = `${lifelines} Lifelines`;
+            let wrongWord;
+            do { wrongWord = vocabData[Math.floor(Math.random() * vocabData.length)].e; } while (wrongWord.toLowerCase() === correctWord.toLowerCase());
+            const options = [correctWord, wrongWord].sort(() => 0.5 - Math.random());
+            popup.innerText = `Hint: ${options[0]} or ${options[1]}`;
+            popup.style.display = 'block';
+            setTimeout(() => { popup.style.display = 'none'; }, 5000);
+        }
+
+        function verify() {
+            currentBatch.forEach((item, i) => {
+                const input = document.getElementById(`ans-${i}`);
+                const status = document.getElementById(`status-${i}`);
+                const userVal = input.value.trim().toLowerCase();
+                input.disabled = true;
+                if (userVal === "") { return; }
+                if (!results.attempted.some(v => v.h === item.h)) results.attempted.push(item);
+                if (userVal === item.e.toLowerCase()) {
+                    status.innerHTML = "✓ Correct";
+                    status.className = "status correct";
+                    input.style.borderColor = "var(--success)";
+                    if (!results.correct.some(v => v.h === item.h)) results.correct.push(item);
+                } else {
+                    status.innerHTML = `✗ Ans: ${item.e}`;
+                    status.className = "status wrong";
+                    input.style.borderColor = "var(--error)";
+                    if (!results.wrong.some(v => v.h === item.h)) results.wrong.push(item);
+                }
+            });
+            document.getElementById('submit-btn').disabled = true;
+        }
+
+        function finishTest() {
+            clearInterval(totalTimerId);
+            const attemptedNames = results.attempted.map(v => v.h);
+            results.skipped = vocabData.filter(v => !attemptedNames.includes(v.h));
+            document.getElementById('quiz-section').style.display = 'none';
+            document.getElementById('nav-sidebar').style.display = 'none';
+            document.getElementById('nav-toggle-btn').style.display = 'none';
+            document.getElementById('rep-attempted').innerText = results.attempted.length;
+            document.getElementById('rep-skipped').innerText = results.skipped.length;
+            document.getElementById('rep-correct').innerText = results.correct.length;
+            document.getElementById('rep-wrong').innerText = results.wrong.length;
+            document.getElementById('report-window').style.display = 'block';
+        }
+
+        function toggleDetails(type) {
+            const container = document.getElementById('detail-list-container');
+            const itemsList = document.getElementById('detail-items');
+            const title = document.getElementById('detail-title');
+
+            if (activeType === type) {
+                container.style.display = 'none';
+                activeType = null;
+            } else {
+                container.style.display = 'block';
+                itemsList.innerHTML = '';
+                title.innerText = `${type} words list`;
+                results[type].forEach(item => {
+                    const div = document.createElement('div');
+                    div.className = 'detail-item';
+                    div.innerHTML = `<span>${item.h}</span> <span style="color:var(--text-gray)">${item.e}</span>`;
+                    itemsList.appendChild(div);
+                });
+                if(results[type].length === 0) itemsList.innerHTML = '<div style="text-align:center; color:gray; padding:10px;">No words found</div>';
+                activeType = type;
+            }
+        }
+    </script>
+    <script src="app-shell.js"></script>
+</body>
+</html>
